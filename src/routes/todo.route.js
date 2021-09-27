@@ -13,12 +13,11 @@ router.route('/')
   .post(async (request, response) => {
     const { text } = request.body;
     if (!text) {
-      response.json({ error: 'ERROR' });
-      return;
+      return response.json({ success: false });
     }
     database.run('INSERT INTO todos (text) VALUES (?)', [text], function (err) {
       if (err) throw err;
-      return response.json({ id: this.lastID, text });
+      return response.json({ success: true, data: { id: this.lastID, text } });
     });
   })
 
@@ -33,6 +32,9 @@ router.route('/:id')
   .patch(async (request, response) => {
     const { id } = request.params;
     const { text } = request.body;
+    if (!text) {
+      return response.json({ success: false });
+    }
     database.run('UPDATE todos SET text = ? WHERE id = ?', [text, id], function (err) {
       if (this.changes) {
         return response.json({ success: true, data: { id, text } });
